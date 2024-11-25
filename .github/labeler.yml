@@ -1,10 +1,8 @@
-# Add 'source' label to any change to src files within the source dir EXCEPT for the docs sub-folder
 source:
 - any: ['src/**/*']
 
 dependency:
-- any: ['package.json', 'package-lock.json']
-
+- any: ['deno.lock']
 
 config:
 - any: ['config/**/*']
@@ -17,9 +15,6 @@ docker:
 
 github:
 - any: ['.github']
-
-githooks:
-- any: ['.githooks']
 
 community:
 - any: ['CODE_OF_CONDUCT.md', 'CONTRIBUTING.md']

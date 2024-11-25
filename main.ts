@@ -22,7 +22,6 @@ async function getBotToken(): Promise<string | undefined> {
     return undefined;
   }
 }
-
 const bot = new Bot((await getBotToken()) as string);
 const myCommands = new CommandGroup();
 myCommands.command("start", "Start the bot", (ctx) => {
@@ -45,17 +44,14 @@ app.use(router.routes());
 app.use(router.allowedMethods());
 
 const webhook = await bot.api.getWebhookInfo();
-if (
-  webhook.url ==
-    `https://telegram-support-bot.deno.dev/webhook`
-) {
+if (webhook.url == `https://telegram-support-bot.deno.dev/webhook`) {
   console.log("Webhook is already set");
 } else {
   console.log("Setting webhook");
-  bot.api.setWebhook(
-    `https://telegram-support-bot.deno.dev/webhook`,
-    { drop_pending_updates: true, allowed_updates: [] },
-  );
+  bot.api.setWebhook(`https://telegram-support-bot.deno.dev/webhook`, {
+    drop_pending_updates: true,
+    allowed_updates: [],
+  });
   console.log("Webhook set");
 }
 

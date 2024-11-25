@@ -1,7 +1,10 @@
 {
-    "eslint.workingDirectories": [
-        "./src",
-    ],
-    "typescript.tsdk": "node_modules/typescript/lib",
-    "deno.enable": true,
+  "deno.enable": true,
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.ts": "always"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "denoland.vscode-deno"
+  }
 }
