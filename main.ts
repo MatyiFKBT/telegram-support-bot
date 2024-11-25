@@ -1,27 +1,59 @@
-import {Application} from '@oak/oak';
-import {Bot, webhookCallback} from 'https://deno.land/x/grammy@v1.32.0/mod.ts';
+import { Application, Router } from "@oak/oak";
+import {
+  Bot,
+  webhookCallback,
+} from "https://deno.land/x/grammy@v1.32.0/mod.ts";
+import { CommandGroup } from "https://deno.land/x/grammy_commands@v1.0.0/mod.ts";
+import { parse } from "@std/yaml";
+import { oakCors } from "https://deno.land/x/cors/mod.ts";
 
-const app = new Application(); // or whatever you're using
+const app = new Application();
+app.use(oakCors());
+
 async function getBotToken(): Promise<string | undefined> {
-  const envToken = Deno.env.get('BOT_TOKEN');
+  const envToken = Deno.env.get("BOT_TOKEN");
   if (envToken) return envToken;
 
   try {
-    const configFile = await readFileStr('config/config.yaml');
+    const configFile = await Deno.readTextFile("config/config.yaml");
     const config = parse(configFile) as Record<string, unknown>;
     return config.bot_token as string;
-  } catch {
+  } catch (e) {
     return undefined;
   }
 }
-const bot = new Bot(await getBotToken() as string);
-bot.on('message', async (ctx) => {
-  console.log(ctx.message);
-  await ctx.reply('Hello World!');
+
+const bot = new Bot((await getBotToken()) as string);
+const myCommands = new CommandGroup();
+myCommands.command("start", "Start the bot", (ctx) => {
+  ctx.react("✍");
+});
+await myCommands.setCommands(bot);
+bot.use(myCommands);
+
+const router = new Router();
+router.get("/", async (ctx) => {
+  // redirect to the repo when someone visits the root
+  ctx.response.redirect("https://github.com/matyifkbt/telegram-support-bot");
 });
 
-bot.api.setWebhook(`https://${Deno.env.get('DENO_DEPLOYMENT_ID')}.deno.dev`);
+router.post("/webhook", webhookCallback(bot, "oak"));
+app.use(router.routes());
+app.use(router.allowedMethods());
 
-// Make sure to specify the framework you use.
-app.use(webhookCallback(bot, 'oak'));
-app.listen({port: 8000});
+const webhook = await bot.api.getWebhookInfo();
+if (
+  webhook.url ==
+    `https://telegram-support-bot.deno.dev/webhook`
+) {
+  console.log("Webhook is already set");
+} else {
+  console.log("Setting webhook");
+  bot.api.setWebhook(
+    `https://telegram-support-bot.deno.dev/webhook`,
+    { drop_pending_updates: true, allowed_updates: [] },
+  );
+  console.log("Webhook set");
+}
+
+app.listen({ port: 8000 });
