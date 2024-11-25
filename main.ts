@@ -28,6 +28,9 @@ const myCommands = new CommandGroup();
 myCommands.command("start", "Start the bot", (ctx) => {
   ctx.react("✍");
 });
+myCommands.command("version", "Show the bot version", (ctx) => {
+  ctx.reply(Deno.env.get("DENO_DEPLOYMENT_ID") as string);
+});
 await myCommands.setCommands(bot);
 bot.use(myCommands);
 
