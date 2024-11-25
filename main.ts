@@ -16,11 +16,12 @@ async function getBotToken(): Promise<string | undefined> {
 }
 const bot = new Bot(await getBotToken() as string);
 bot.on('message', async (ctx) => {
-    console.log(ctx.message);
-    await ctx.reply('Hello World!');
+  console.log(ctx.message);
+  await ctx.reply('Hello World!');
 });
 
 bot.api.setWebhook(`https://${Deno.env.get('DENO_DEPLOYMENT_ID')}.deno.dev`);
 
 // Make sure to specify the framework you use.
 app.use(webhookCallback(bot, 'oak'));
+app.listen({port: 8000});
